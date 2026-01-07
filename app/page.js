@@ -175,11 +175,27 @@ export default function LoanRecordPage() {
 
     setSaving(true);
     try {
+      // สร้าง timestamp แบบ local พร้อม timezone offset ของผู้ใช้
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      const secs = String(now.getSeconds()).padStart(2, '0');
+      
+      // ดึง timezone offset อัตโนมัติ (เช่น -420 นาที = +07:00)
+      const tzOffset = -now.getTimezoneOffset();
+      const tzSign = tzOffset >= 0 ? '+' : '-';
+      const tzHours = String(Math.floor(Math.abs(tzOffset) / 60)).padStart(2, '0');
+      const tzMins = String(Math.abs(tzOffset) % 60).padStart(2, '0');
+      const localTimestamp = `${year}-${month}-${day}T${hours}:${mins}:${secs}${tzSign}${tzHours}:${tzMins}`;
+      
       const result = await supabaseFetch('loan_records', 'POST', {
         name: name.trim(),
         amount: amountNum,
         week_key: targetWeekKey,
-        created_at: selectedDate.toISOString()
+        created_at: localTimestamp
       });
 
       if (result && result[0]) {
