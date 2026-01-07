@@ -113,7 +113,10 @@ export default function LoanRecordPage() {
   const recordMap = useMemo(() => {
     const map = new Map();
     records.forEach(r => {
-      const dateStr = r.created_at ? r.created_at.split('T')[0] : '';
+      if (!r.created_at) return;
+      // แปลง UTC เป็น local date
+      const d = new Date(r.created_at);
+      const dateStr = toLocalDateStr(d);
       if (!map.has(dateStr)) map.set(dateStr, []);
       map.get(dateStr).push(r);
     });
